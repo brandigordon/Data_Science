@@ -1,7 +1,36 @@
-Below are both the Python code and insights from a basic exploratory analysis of "hour" data. 
+Below are both the Python code and insights from a basic exploratory analysis of the "hour" dataset. 
 This dataset was provided by bradfordtuckfield.com, and represents real data from a bike rental service in Washington D.C.
-I am performing an exploratory analysis to understand the data and gain high-level insights. 
+Below, I performed exploratory analysis with Python to understand the data and gain high-level insights. 
 
+Packages used: pandas, matplotlib, seaborn 
+
+To briefly summarize, each day & hour between 2011 and 2012 is recorded in a row with information such as time of year, weather, rider type, and rider count.
+
+I used summary statistical calculations to begin exploring the full dataset to answer a few initial questions: 
+   - Does the data look correct/overall plausible? 
+   - When are rider counts high? When are they low?
+
+Once initial insights were gained, I began exploring subsets of data:
+   - Used the loc() method in combination with logical arguments to identify average ridership during night hours (2 AM, 3 AM, 4 AM) and during certain weather: how does ridership
+   change between cold early mornings and warm early mornings? In this dataset, ridership was higher on warm early mornings.
+   - Used the groupby() method to find the average ridership by season & holiday, discovering that average ridership is higher during the warmer seasons on non-holidays.
+
+After this first pass of exploratory analysis, I began to visualize the data:
+   - Imported matplotlib and put the entire dataset on a scatterplot. At first glance, it is clear that average ridership increased in the second year. Seasonal patterns
+   are visible as well (lowest ridership in winter and fall, highest in spring and summer)
+   - Plotted subsets of data: Found that ridership was highest during early morning and later afternoon hours across both days. We can assume that folks are using the 
+   bikes to commute to work. Found that there are significantly more registered riders than casual (non-registered) riders (Why?). 
+   - Imported seaborn to create a box plot to clearly see the 75th and 25th percentiles, median (or 50th percentile), full range of observations, and outliers. I saw very clearly
+   that average ridership was higher between 6-9 AM and 5-8 PM, leading me to the conclusion that the bikes are perhaps used for work commuting. 
+   - Plotted a histogram which revealed that many hours in this dataset have few riders, and few hours have many riders. We need to bridge that gap. 
+
+Next, I explored Correlations:
+   - Calculated the Pearson correlation coefficient with the corr() method. I found a positive correlation between casual and registered riders, but it was not deterministic.
+   In other words, often a higher number of casual riders corresponds to a higher number of registered riders, but sometimes it doesn't. 
+   - It is important to understand both positive and negative correlations, as well as strong vs weak correlations.
+
+In summary, while this was a basic exploration, I gained a lot of insight into this dataset. I learned when ridership was high, when it was low, and what factors affected
+ridership (such as uncomfortable weather and holidays). 
 
 --------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -122,11 +151,11 @@ print(hour.loc[hour['hr']<5, 'registered'].mean())
 # The logical condition "['hr']<5" selected every row in the data that had an hr variable less than 5 - this gives us a subset of data corresponding to midnight - 4 am
 
 # We can use more complex logic to check for multiple conditions. Let's look at ridership counts on colder early mornings as compared to warmer early mornings.
-print(hour.loc[(hour['hr']<5) & (hour['temp']<.50), 'cnt'].mean())
+print(hour.loc[(hour['hr']<5) & (hour['temp']<.50), 'cnt'].mean()) # cold early morning
       
 19.521104742053154
 
-print(hour.loc[(hour['hr']<5) & (hour['temp']>.50), 'cnt'].mean())
+print(hour.loc[(hour['hr']<5) & (hour['temp']>.50), 'cnt'].mean()) # warm early morning 
       
 33.639322916666664
 
@@ -311,6 +340,9 @@ print(hour['casual'].corr(hour['registered']))
 print(hour['temp'].corr(hour['hum']))
 -0.06988139105119354 # No correlation - while negative, this number is extremely close to 0, making it uncorrelated 
 
+# It is important to understand strong vs weak Correlations. The closer the coefficient is to either -1 or 1, the stronger the correlation is. 
+# When the correlation is not strong, it is considered weak, or even "random"
+
 # In addition to calculating the coefficient, we can create a correlation matrix:
 thenames=['hr', 'temp', 'windspeed']
 cor_matrix = hour[thenames].corr()
@@ -319,6 +351,7 @@ print(cor_matrix)
 hr         1.000000  0.137603   0.137252
 temp       0.137603  1.000000  -0.023125
 windspeed  0.137252 -0.023125   1.000000
-# We can see that each variable will always have a perfect correlation with itself in addition to their correlation with each other variable.
+# We can see that each variable will always have a perfect correlation with itself (1.0) in addition to its correlation with each other variable.
+# In this example, there are no strong correlations between the selected variables.
 
 
