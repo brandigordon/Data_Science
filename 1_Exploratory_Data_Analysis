@@ -1,0 +1,324 @@
+Below are both the Python code and insights from a basic exploratory analysis of "hour" data. 
+This dataset was provided by bradfordtuckfield.com, and represents real data from a bike rental service in Washington D.C.
+I am performing an exploratory analysis to understand the data and gain high-level insights. 
+
+
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+# Using Python to Explore a .csv file 
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------
+# The .csv file is called 'hour' 
+
+# Import data with pandas and display the first 5 rows of data 
+
+import pandas as pd
+hour=pd.read_csv('/Users/brandigordon/Desktop/Desktop/Data_Science/Ch_1/hour.csv')
+print(hour.head())
+   instant      dteday  season  yr  ...  windspeed  casual  registered  cnt
+0        1  2011-01-01       1   0  ...        0.0       3          13   16
+1        2  2011-01-01       1   0  ...        0.0       8          32   40
+2        3  2011-01-01       1   0  ...        0.0       5          27   32
+3        4  2011-01-01       1   0  ...        0.0       3          10   13
+4        5  2011-01-01       1   0  ...        0.0       0           1    1
+
+[5 rows x 17 columns]
+
+# Let's see what the full dataset looks like
+print(hour)
+       instant      dteday  season  yr  ...  windspeed  casual  registered  cnt
+0            1  2011-01-01       1   0  ...     0.0000       3          13   16
+1            2  2011-01-01       1   0  ...     0.0000       8          32   40
+2            3  2011-01-01       1   0  ...     0.0000       5          27   32
+3            4  2011-01-01       1   0  ...     0.0000       3          10   13
+4            5  2011-01-01       1   0  ...     0.0000       0           1    1
+...        ...         ...     ...  ..  ...        ...     ...         ...  ...
+17374    17375  2012-12-31       1   1  ...     0.1642      11         108  119
+17375    17376  2012-12-31       1   1  ...     0.1642       8          81   89
+17376    17377  2012-12-31       1   1  ...     0.1642       7          83   90
+17377    17378  2012-12-31       1   1  ...     0.1343      13          48   61
+17378    17379  2012-12-31       1   1  ...     0.1343      12          37   49
+
+[17379 rows x 17 columns]
+
+# I can't see all column names as python has turned them into ellipses. I will use the loc() method to look at the first row. I could open the spreadsheet as an alternative to this step.
+
+print(hour.loc[0, :])
+instant                1
+dteday        2011-01-01
+season                 1
+yr                     0
+mnth                   1
+hr                     0
+holiday                0
+weekday                6
+workingday             0
+weathersit             1
+temp                0.24    # taking note that the temperature scale varies from 0 to 1, where 0 represents very cold, and 1 represents very warm
+atemp             0.2879
+hum                 0.81
+windspeed            0.0
+casual                 3
+registered            13
+cnt                   16
+Name: 0, dtype: object
+
+
+# The last 3 columns in this dataset are very important. They are casual, registered, and count (cnt). People who register with the service can get discounts and some benefits, placing 
+# them in the registered column - but bikes can be rented without registering, which is the casual column.
+# The cnt column is the sum of both the casual and registered columns.
+# I am already taking note that there are more registered riders than casual riders.
+
+# Calucating summary statistics to begin making sense of the data 
+
+print(hour['cnt'].median())
+142.0
+print(hour['cnt'].min())
+1
+print(hour['cnt'].mean())
+189.46308763450142
+print(hour['cnt'].std())
+181.38759909186473
+print(hour['cnt'].min())
+1
+print(hour['cnt'].max())
+977
+
+# Alternatively, use the describe() method to check the summary statistics of all variables in the dataset 
+# Check to see if all values are plausible before moving on with the analysis 
+
+print(hour.describe())
+          instant        season  ...    registered           cnt
+count  17379.0000  17379.000000  ...  17379.000000  17379.000000
+mean    8690.0000      2.501640  ...    153.786869    189.463088
+std     5017.0295      1.106918  ...    151.357286    181.387599
+min        1.0000      1.000000  ...      0.000000      1.000000
+25%     4345.5000      2.000000  ...     34.000000     40.000000    # This line shows us that 25 percent of the hours in our dataset had 40 riders (cnt) or fewer.
+50%     8690.0000      3.000000  ...    115.000000    142.000000
+75%    13034.5000      3.000000  ...    220.000000    281.000000    # This line shows us that 75 percent of the hours in our dataset had more than 40 riders.
+max    17379.0000      4.000000  ...    886.000000    977.000000
+
+[8 rows x 16 columns]
+
+# So far, the data looks good. We have already gained some insights. 
+# For example, in the first 24 hours of the data, rider numbers at night are much lower than rider numbers during the day.
+# 25 percent of hours had 40 or less riders, while one hour had 866 riders.
+# In terms of business, we want our hours to have a high volume of riders, and are exploring the data to figure out ways to increase ridership.
+# Initial questions are how can we increase ridership? Do we run promotions when ridership is lower to promote use?
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------
+## Let's analyze a subset of this data 
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------
+# Ridership is lower at night, so let's dive in 
+
+# Let's look at registered riders between the hours of 2, 3, and 4 AM
+print(hour.loc[2:4, 'registered'])
+2    27
+3    10
+4     1
+Name: registered, dtype: int64
+
+# We could also use a logical condition to look at nighttime data
+print(hour.loc[hour['hr']<5, 'registered'].mean())
+20.7881427367238
+# The logical condition "['hr']<5" selected every row in the data that had an hr variable less than 5 - this gives us a subset of data corresponding to midnight - 4 am
+
+# We can use more complex logic to check for multiple conditions. Let's look at ridership counts on colder early mornings as compared to warmer early mornings.
+print(hour.loc[(hour['hr']<5) & (hour['temp']<.50), 'cnt'].mean())
+      
+19.521104742053154
+
+print(hour.loc[(hour['hr']<5) & (hour['temp']>.50), 'cnt'].mean())
+      
+33.639322916666664
+
+# Ridership counts were higher between the same hours when the temperature was higher.
+# We can also use an or operator | to see the ridership count if the weather is either warm or the humidity high - both don't have to be true
+print(hour.loc[(hour['temp']>.50) | (hour['hum']>0.5), 'cnt'].mean())
+      
+193.36764103264582
+# We are exploring these conditions specifically to figure out what ridership looks like when weather is uncomfortable so we can increase ridership during those instances.
+
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------
+## Let's Explore the Seasonal Data 
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------
+print(hour.groupby(['season'])['cnt'].mean())  # use the groupby() method to group by season and find the ridership mean
+      
+season
+1    111.114569        # Season 1 is Winter
+2    208.344069        # Season 2 is Spring
+3    236.016237        # Season 3 is Summer
+4    198.868856        # Season 4 is Fall
+Name: cnt, dtype: float64
+
+# It is already easy to tell that ridership is highest in the summer, and lowest in the winter
+# We can use the groupby() method to group on multiple columns
+print(hour.groupby(['season', 'holiday'])['cnt'].mean())
+                    
+season  holiday
+1       0          112.685875
+        1           72.042683
+2       0          208.428472
+        1          204.552083
+3       0          235.976818
+        1          237.822917
+4       0          199.965998
+        1          167.722222
+Name: cnt, dtype: float64
+
+# When 0, not a holiday, when 1, it is a holiday
+# Non-holidays seem to have higher riderships across seasons, for the most part. The exception would be the summer, but the difference is not significant
+
+# I wanted to see the difference in mean/average ridership across both years in the dataset by weekday ( 0 = Monday) 
+print(hour.groupby(['yr', 'weekday'])['cnt'].mean())
+               
+yr  weekday
+0   0          143.845654
+    1          145.927935
+    2          147.576105
+    3          137.647681
+    4          142.491429
+    5          146.897498
+    6          142.201741
+1   0          210.033832
+    1          221.287781
+    2          234.582453
+    3          243.883628
+    4          249.472713
+    5          245.019231
+    6          238.833333
+Name: cnt, dtype: float64
+# Right from the jump, average ridership increased substantially from 2011 (yr 0) - 2012 (yr 1)
+# Average ridership on specific changed from year-to-year as well. In 2011, The highest average ridership day was Wednesday. In 2012, it was Friday. 
+# Promotions & Scheduling maintenance can be determined with this information.
+
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------
+## Visualizing Data with Matplotlib
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------
+# Plot your data early and often 
+
+import matplotlib.pyplot as plt
+fig, ax = plt.subplots(figsize=(10,6))
+ax.scatter(x = hour['instant'], y = hour['cnt'])
+<matplotlib.collections.PathCollection object at 0x1147aadb0>
+plt.show()
+
+# The graph clearly shows what I noticed above - average ridership increased significantly from 2011 to 2012. It also shows a seasonal trend.
+
+# Clarify plots with Titles and Labels 
+fig, ax = plt.subplots(figsize=(10,6))
+ax.scatter(x = hour['instant'], y = hour['cnt'])
+<matplotlib.collections.PathCollection object at 0x114bff980>
+plt.xlabel("Hour")
+Text(0.5, 73.44444444444441, 'Hour')
+plt.ylabel("Count")
+Text(175.06944444444443, 0.5, 'Count')
+plt.title("Ridership Count by Hour")
+Text(0.5, 1.0, 'Ridership Count by Hour')
+plt.show()
+
+# Because this is a large dataset, it is difficult to look at everything in the scatter plot. We must plot subsets of the data.
+# Plotting Subsets of Data
+hour_first48=hour.loc[0:48, :]    # define a new variable called hour_first48, corresponding to roughly the first two full days of data
+fig, ax = plt.subplots(figsize=(10,6))
+ax.scatter(x = hour_first48['instant'], y = hour_first48['cnt'])
+<matplotlib.collections.PathCollection object at 0x114d77020>
+plt.xlabel("Hour")
+Text(0.5, 73.44444444444441, 'Hour')
+plt.ylabel("Count")
+Text(175.06944444444443, 0.5, 'Count')
+plt.title("Count by Hour - First Two Days")
+Text(0.5, 1.0, 'Count by Hour - First Two Days')
+plt.show()
+
+# Plotting both the entire dataset and then smaller subsets allows us to see overall trends as well as patterns within each day 
+
+# Let's plot lines comparing casual (red, solid) to registered (blue, dotted) riders
+fig, ax = plt.subplots(figsize=(10,6))
+ax.plot(hour_first48['instant'], hour_first48['casual'], c = 'red', label = 'casual', linestyle = '-')
+[<matplotlib.lines.Line2D object at 0x114da2c30>]
+ax.plot(hour_first48['instant'],\
+        hour_first48['registered'], c = 'blue', label = 'registered', linestyle = '--')
+[<matplotlib.lines.Line2D object at 0x114defb90>]
+ax.legend()
+<matplotlib.legend.Legend object at 0x1147e43e0>
+plt.show()
+# While we can see that registered users outnumber the casual users, there is a similar pattern of ridership between both categories, which is interesting. 
+# It seems that the ridership / needs for a bike ride are consistent across each day, what changes is whether or not a rider registers or not
+
+#Gain even more insight by plotting a box plot with seaborn:
+import seaborn as sns
+fig, ax = plt.subplots(figsize=(10,6))
+sns.boxplot(x='hr', y='registered', data=hour)
+<Axes: xlabel='hr', ylabel='registered'>
+plt.xlabel("Hour")
+Text(0.5, 73.44444444444441, 'Hour')
+plt.ylabel("Count")
+Text(175.06944444444443, 0.5, 'Count')
+plt.title("Counts by Hour")
+Text(0.5, 1.0, 'Counts by Hour')
+plt.show()
+#We can see outliers, median ridership by the hour
+
+# Create a histogram 
+fig, ax = plt.subplots(figsize=(10,6))
+ax.hist(hour['cnt'], bins=80)
+(array([2.362e+03, 1.015e+03, 8.370e+02, 6.070e+02, 5.510e+02, 5.930e+02,
+       4.860e+02, 5.210e+02, 4.730e+02, 4.920e+02, 5.020e+02, 4.500e+02,
+       4.630e+02, 4.370e+02, 4.450e+02, 4.430e+02, 3.900e+02, 3.770e+02,
+       3.850e+02, 3.410e+02, 3.100e+02, 2.740e+02, 2.990e+02, 2.830e+02,
+       2.580e+02, 2.640e+02, 2.060e+02, 2.030e+02, 1.740e+02, 1.880e+02,
+       1.930e+02, 1.740e+02, 1.390e+02, 1.510e+02, 1.410e+02, 1.110e+02,
+       1.200e+02, 1.220e+02, 1.020e+02, 1.010e+02, 1.240e+02, 8.900e+01,
+       8.500e+01, 7.300e+01, 6.900e+01, 7.900e+01, 7.500e+01, 6.900e+01,
+       6.400e+01, 4.300e+01, 5.400e+01, 4.200e+01, 4.700e+01, 3.900e+01,
+       3.600e+01, 4.400e+01, 3.600e+01, 2.800e+01, 2.400e+01, 3.100e+01,
+       2.500e+01, 1.700e+01, 1.100e+01, 1.600e+01, 1.900e+01, 1.800e+01,
+       2.600e+01, 1.700e+01, 1.800e+01, 1.700e+01, 1.200e+01, 1.200e+01,
+       1.000e+01, 1.000e+01, 2.000e+00, 3.000e+00, 1.000e+00, 3.000e+00,
+       3.000e+00, 5.000e+00]), array([  1. ,  13.2,  25.4,  37.6,  49.8,  62. ,  74.2,  86.4,  98.6,
+       110.8, 123. , 135.2, 147.4, 159.6, 171.8, 184. , 196.2, 208.4,
+       220.6, 232.8, 245. , 257.2, 269.4, 281.6, 293.8, 306. , 318.2,
+       330.4, 342.6, 354.8, 367. , 379.2, 391.4, 403.6, 415.8, 428. ,
+       440.2, 452.4, 464.6, 476.8, 489. , 501.2, 513.4, 525.6, 537.8,
+       550. , 562.2, 574.4, 586.6, 598.8, 611. , 623.2, 635.4, 647.6,
+       659.8, 672. , 684.2, 696.4, 708.6, 720.8, 733. , 745.2, 757.4,
+       769.6, 781.8, 794. , 806.2, 818.4, 830.6, 842.8, 855. , 867.2,
+       879.4, 891.6, 903.8, 916. , 928.2, 940.4, 952.6, 964.8, 977. ]), <BarContainer object of 80 artists>)
+plt.xlabel("Ridership")
+Text(0.5, 73.44444444444441, 'Ridership')
+plt.ylabel("Frequency")
+Text(175.06944444444443, 0.5, 'Frequency')
+plt.title("Ridership Histogram")
+Text(0.5, 1.0, 'Ridership Histogram')
+plt.show()
+# the result shows us that very few hours in our dataset had over 800 riders, but there were many hours in the dataset where ridership was very low.
+# We want high ridership for many hours, and little ridership for fewer hours 
+# This can inform us if we can sell some of our fleet, when to perform bike maintenance, and how to staff the operation.
+
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------
+# Exploring Correlations 
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+# Positive Correlation: One variable tends to go up when the other goes up, or one variable tends to go down when the other goes down.
+# Negative Correlation: One variable tends to go up when the other goes down, or one variable tends to go down when the other goes up.
+
+# Calculate a correlation using the corr() method, which calculates the correlation coefficient (Pearson)
+# The Pearson correlation coefficient is a number that's always between -1 and 1
+# When the coefficient is positive, our variables are positively correlated, and if it's negative, they are negatively correlated 
+# If the coefficient is 0 or very close to 0, there is no correlation: 
+plt.show()
+print(hour['casual'].corr(hour['registered']))
+0.5066177004294634 # positive correlation between casual and registered riders 
+print(hour['temp'].corr(hour['hum']))
+-0.06988139105119354 # No correlation - while negative, this number is extremely close to 0, making it uncorrelated 
+
+# In addition to calculating the coefficient, we can create a correlation matrix:
+thenames=['hr', 'temp', 'windspeed']
+cor_matrix = hour[thenames].corr()
+print(cor_matrix)
+                 hr      temp  windspeed
+hr         1.000000  0.137603   0.137252
+temp       0.137603  1.000000  -0.023125
+windspeed  0.137252 -0.023125   1.000000
+# We can see that each variable will always have a perfect correlation with itself 
+
+
