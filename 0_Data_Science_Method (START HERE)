@@ -3,12 +3,26 @@ As a current data professional and aspiring data scientist, I am going through a
 Why Data Science?
 First and foremost, I love data. It is the basis for everything. I love learning about a dataset, how it impacts people and organizations, and how it improves technology. 
 I love learning how you can use data to improve people's health and lives. I love the insights that can be gleaned from a robust set of data. 
+With data, the possibilities truly feel limitless. 
 I want to be a data expert.
 
 
 Table of Contents: 
 
 01_Exploratory_Data_Analysis / Complete 
+
+  Packages used: pandas, matplotlib, seaborn 
+  To briefly summarize the dataset, each day & hour between 2011 and 2012 is recorded in a row with information such as time of year, weather, rider type, and rider count.
+  I used summary statistical calculations to begin exploring the full dataset to answer a few initial questions: 
+     - Does the data look correct/overall plausible? 
+     - When are rider counts high? When are they low? What factors might be contributing to each?
+  Then, I began exploring subsets of data and found that average ridership was higher during Spring & Summer.
+  Next, I began visualizing the data with Matplotlib. I plotted both the full dataset and subsets of the data.
+  I used seaborn to create a box plot for a very detailed visualization, learning that average ridership was higher between 6-9 AM and 
+  5-8 PM, leading me to the conclusion that the bikes are used for commuting to work.
+  I also calculated the Pearson correlation coefficient with the corr() method. I found a positive correlation between casual and registered riders, but it was not deterministic. 
+
+In summary, while this was a basic exploration, I gained a lot of insight into this dataset. I learned when ridership was high, when it was low, and what factors affected ridership (such as uncomfortable weather and holidays). 
 
 02_Forecasting / In Progress 
 
