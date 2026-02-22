@@ -319,6 +319,6 @@ print(cor_matrix)
 hr         1.000000  0.137603   0.137252
 temp       0.137603  1.000000  -0.023125
 windspeed  0.137252 -0.023125   1.000000
-# We can see that each variable will always have a perfect correlation with itself 
+# We can see that each variable will always have a perfect correlation with itself in addition to their correlation with each other variable.
 
 
