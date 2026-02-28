@@ -1,1 +1,70 @@
+----- Using Linear Regression in Python -----
+
+Data: Obtained from bradtuckfield.com. This is car sales data. 
+An initial business question to glean from this data, is how many cars will need be ordered to both turn a profit and meet customer demand?
+
+# Import the .csv file, read with pandas, print first 5 rows
+
+import pandas as pd
+carsales = pd.read_csv('carsales.csv')
+print(carsales.head())
+     Month  Monthly car sales in Quebec 1960-1968
+0  1960-01                                 6550.0
+1  1960-02                                 8728.0
+2  1960-03                                12026.0
+3  1960-04                                14395.0
+4  1960-05                                14587.0
+
+----- Data Cleaning -----
+
+# The second column name, "Monthly car sales in Quebec 1960-1968," will be easier to work with if it's shortened. 
+
+carsales.columns=['month', 'sales']
+
+# Let's check the bottom 5 rows of the dataframe 
+
+print(carsales.tail())
+                                     month    sales
+104                                1968-09  14385.0
+105                                1968-10  21342.0
+106                                1968-11  17180.0
+107                                1968-12  14577.0
+108  Monthly car sales in Quebec 1960-1968      NaN
+
+
+# Keep rows 1-107 using the pandas loc() method, as we don't need to include row 108 in any analyses 
+carsales=carsales.loc[0:107,:].copy()
+print(carsales.tail())
+       month    sales
+103  1968-08  16722.0
+104  1968-09  14385.0
+105  1968-10  21342.0
+106  1968-11  17180.0
+107  1968-12  14577.0
+
+# Change date data type from str to num in a new variable called 'period'
+carsales['period']=list(range(108))
+
+
+----- Plot Data to Find Trends -----
+
+# Using matplotlib and a scatter plot to visualize the full dataset
+plt.scatter(carsales['period'], carsales['sales'])
+<matplotlib.collections.PathCollection object at 0x1165acc20>
+plt.title('Car Sales by Month')
+Text(0.5, 1.0, 'Car Sales by Month')
+plt.xlabel('Month')
+Text(0.5, 47.04444444444444, 'Month')
+plt.ylabel('Sales')
+Text(40.81944444444443, 0.5, 'Sales')
+plt.show()
+
+# The data definitely shows a gradual upward trend across time, but the data points are pretty scattered and there doesn't seem to be a clear relationship between them.
+
+----- Performing Linear Regression -----
+
+
+
+
+
 
