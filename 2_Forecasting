@@ -63,6 +63,79 @@ plt.show()
 
 ----- Performing Linear Regression -----
 
+# Use the pandas reshape method to store data as 108 rows of 1 list each
+x = carsales['period'].values.reshape(-1,1)
+y = carsales['sales'].values.reshape(-1,1)
+
+# Creating the linear regression with sklearn / Fitting a regression 
+import sklearn
+from sklearn.linear_model import LinearRegression
+regressor = LinearRegression()
+regressor.fit(x,y)
+LinearRegression()
+print(regressor.coef_)
+[[81.20250174]]
+print(regressor.intercept_)
+[10250.77726809]
+
+# Algebra, straight line expression is y = mx + b
+# carsales = 81.2 * period + 10250.8
+# Every point on this line is a prediction of how many car sales are expected at each time period
+# The line's slope, 81.2, is the monthly growth trend of car sales 
+
+# Plotting the regression line 
+plt.scatter(carsales['period'], carsales['sales'])
+<matplotlib.collections.PathCollection object at 0x126545be0>
+plt.plot(carsales['period'],[81.2 * i + 10250.8 for i in \
+                             carsales['period']], 'r-', label='Regression Line')
+[<matplotlib.lines.Line2D object at 0x126546300>]
+plt.legend(loc="upper left")
+<matplotlib.legend.Legend object at 0x12350f260>
+plt.title('Car Sales by Month')
+Text(0.5, 1.0, 'Car Sales by Month')
+plt.xlabel('Month')
+Text(0.5, 47.04444444444444, 'Month')
+plt.ylabel('Sales')
+Text(40.81944444444443, 0.5, 'Sales')
+plt.show()
+
+# Let's measure the regression errors to see how good of a fit the regression line has 
+saleslist=carsales['sales'].tolist()
+regressionline=[81.2 * i + 10250.8 for i in carsales['period']]
+error1=[(x-y) for x, y in zip(regressionline,saleslist)]
+print(error1)
+
+# Find the mean absolute error (MAE) with NumPy (MAE = average vertical distance between a line and the points in a dataset). The lower the MAE, the better the fit.
+import numpy as np
+error1abs=[abs(value) for value in error1]
+print(np.mean(error1abs))
+3154.3592592592595 # This number represents our prediction error 
+
+# Calculate the root mean squared error (RMSE). Lower values indicate a better fit.
+error1squared=[(value)**2 for value in error1]
+print(np.sqrt(np.mean(error1squared)))
+3725.491219512759
+
+# Creating python functions to perform calculations of MAE and RMSE:
+def get_mae(line,actual):
+    error=[(x-y) for x,y in zip(line,actual)]
+    errorlabs=[abs(value) for value in error]
+    mae=np.mean(error1abs)
+    return(mae)
+
+def get_rmse(line,actual):
+    error=[(x-y) for x,y in zip(line,actual)]
+    errorsquared=[(value)**2 for value in error]
+    rmse=np.sqrt(np.mean(errorsquared))
+    return(rmse)
+
+# Checking the output of our functions - they look correct
+print(get_mae(regressionline,saleslist))
+3154.3592592592595
+print(get_rmse(regressionline,saleslist))
+3725.491219512759
+
+
 
 
 
